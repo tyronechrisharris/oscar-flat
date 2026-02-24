@@ -1,0 +1,164 @@
+package com.botts.impl.service.oscar.video;
+
+import org.bytedeco.ffmpeg.avcodec.AVCodecParameters;
+import org.bytedeco.ffmpeg.avcodec.AVPacket;
+import org.bytedeco.ffmpeg.avformat.*;
+import org.bytedeco.ffmpeg.avutil.AVDictionary;
+import org.bytedeco.ffmpeg.avutil.AVRational;
+import org.bytedeco.ffmpeg.global.avcodec;
+import org.bytedeco.ffmpeg.global.avformat;
+import org.bytedeco.ffmpeg.global.avutil;
+import org.sensorhub.mpegts.DataBufferListener;
+import org.sensorhub.mpegts.FFmpegUtils;
+import org.sensorhub.mpegts.DataBufferRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.bytedeco.ffmpeg.global.avutil.*;
+import static org.bytedeco.ffmpeg.global.avcodec.*;
+import static org.bytedeco.ffmpeg.global.avformat.*;
+import static org.bytedeco.ffmpeg.global.avformat.AVIO_FLAG_WRITE;
+import static org.bytedeco.ffmpeg.global.avutil.AV_NOPTS_VALUE;
+import static org.bytedeco.ffmpeg.global.avutil.av_rescale_q;
+
+// TODO Should this be moved to the ffmpeg driver package?
+public class VideoKeyframeDecimator implements DataBufferListener {
+    private static final Logger logger = LoggerFactory.getLogger(VideoKeyframeDecimator.class);
+    final String outputFileName;
+
+    final static String LISTENER_NAME = "KEYFRAME-DECIMATOR";
+
+    boolean isWriting = true;
+
+    final int totalKeyframe;
+    long duration;
+    long keyFrameDuration;
+    long currentDecFrame = 0;
+
+    AVFormatContext avFormatContext;
+    AVStream avStream;
+    AVRational timeBase;
+
+    Runnable closeCallback;
+
+    final Object lock = new Object();
+
+    VideoKeyframeDecimator(String outputFileName, int totalKeyframe, AVStream otherStream) {
+        this.outputFileName = outputFileName;
+        this.totalKeyframe = totalKeyframe;
+
+        openOutputFile(outputFileName, otherStream);
+
+        keyFrameDuration = duration / totalKeyframe;
+    }
+
+    public void openOutputFile(String fileName, AVStream otherStream) {
+        avFormatContext = new AVFormatContext(null);
+        avformat.avformat_alloc_output_context2(avFormatContext, null, "mp4", null);
+
+        avStream = avformat.avformat_new_stream(avFormatContext, null);
+        avcodec.avcodec_parameters_copy(avStream.codecpar(), otherStream.codecpar());
+        FFmpegUtils.cleanCodecParameters(avStream.codecpar());
+
+        avStream.codecpar().format(otherStream.codecpar().format());
+        avStream.codecpar().extradata(otherStream.codecpar().extradata());
+        avStream.codecpar().extradata_size(otherStream.codecpar().extradata_size());
+
+        if ((avFormatContext.oformat().flags() & AVFMT_NOFILE) == 0) {
+            AVIOContext avioContext = new AVIOContext(null);
+            if (avio_open(avioContext, fileName, AVIO_FLAG_WRITE) < 0) {
+                throw new RuntimeException("Could not open file.");
+            }
+            avFormatContext.pb(avioContext);
+        }
+
+        avformat.avformat_write_header(avFormatContext, (AVDictionary) null);
+
+        timeBase = avStream.time_base();
+        duration = av_rescale_q(otherStream.duration(), otherStream.time_base(), avStream.time_base());
+        //avStream.time_base(timeBase);
+        //avStream.duration(duration);
+        //avFormatContext.duration(duration);
+
+        if (timeBase != null) {
+            var frameRate = avutil.av_make_q(totalKeyframe * timeBase.den(), (int) duration * timeBase.num());
+            avStream.avg_frame_rate(frameRate);
+            avStream.r_frame_rate(frameRate);
+        }
+        else {
+            avStream.avg_frame_rate(avutil.av_make_q(30, 1));
+        }
+    }
+
+    @Override
+    public void onDataBuffer(DataBufferRecord record) {
+        synchronized (lock) {
+            if (!isWriting)
+                return;
+
+            //resetFrameTimeout();
+            long timestamp = (long) (record.getPresentationTimestamp() * timeBase.den() / timeBase.num());
+
+
+            if (record.isKeyFrame() && timestamp >= keyFrameDuration * currentDecFrame) {
+                //if (timestamp >= keyFrameDuration * currentDecFrame) {
+                byte[] data = record.getDataBuffer();
+                AVPacket avPacket = av_packet_alloc();
+
+                av_new_packet(avPacket, data.length);
+                avPacket.data().put(data);
+                avPacket.time_base();
+                avPacket.stream_index(avStream.index());
+                avPacket.duration(keyFrameDuration);
+                long ts = keyFrameDuration * currentDecFrame;
+                avPacket.pts(ts);
+                avPacket.dts(ts);
+
+                avPacket.flags(avPacket.flags() | avcodec.AV_PKT_FLAG_KEY);
+
+                avformat.av_interleaved_write_frame(avFormatContext, avPacket);
+
+                av_packet_free(avPacket);
+
+                currentDecFrame++;
+                if (currentDecFrame >= totalKeyframe) {
+                    closeFile();
+                }
+            }
+        }
+    }
+
+    public void closeFile() {
+        synchronized (lock) {
+            if (isWriting) {
+                isWriting = false;
+                avformat.av_write_trailer(avFormatContext);
+                avformat.avio_close(avFormatContext.pb());
+
+                if (closeCallback != null) {
+                    closeCallback.run();
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean isWriting() {
+        return isWriting;
+    }
+
+    @Override
+    public String getName() {
+        return LISTENER_NAME;
+    }
+
+    public void setFileCloseCallback(Runnable closeCallback) {
+        this.closeCallback = closeCallback;
+    }
+}
