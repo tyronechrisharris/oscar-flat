@@ -1,5 +1,5 @@
 {
-  "appTitle": "OSCAR",
+  "appTitle": "OSCAR (pa-PK)",
   "dashboard": "Dashboard",
   "events": "Events",
   "map": "Map",
@@ -47,7 +47,7 @@
   "code1": "Code 1: Contraband Found",
   "code2": "Code 2: Other",
   "code3": "Code 3: Medical Isotope Found",
-  "code4": "Code 4: Norm Found",
+  "code4": "Code 4: NORM Found",
   "code5": "Code 5: Declared Shipment of Radioactive Material",
   "code6": "Code 6: Physical Inspection Negative",
   "code7": "Code 7: RIID/ASP Indicates Background Only",
