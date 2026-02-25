@@ -1,0 +1,3 @@
+include/osh-core/.gradle/
+include/osh-core/build/
+include/osh-core/**/build/
