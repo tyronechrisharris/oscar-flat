@@ -100,6 +100,9 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 
 
 @Theme("sensorhub")
@@ -124,6 +127,33 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
     private static final String STYLE_LOGO = "logo";
     private static final String PROP_STATE = "state";
     private static final String PROP_MODULE_OBJECT = "module";
+
+    static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<>();
+    static {
+        SUPPORTED_LOCALES.put("English", Locale.ENGLISH);
+        SUPPORTED_LOCALES.put("Español", new Locale("es"));
+        SUPPORTED_LOCALES.put("Français", new Locale("fr"));
+        SUPPORTED_LOCALES.put("العربية", new Locale("ar"));
+        SUPPORTED_LOCALES.put("Русский", new Locale("ru"));
+        SUPPORTED_LOCALES.put("简体中文", new Locale("zh", "CN"));
+        SUPPORTED_LOCALES.put("日本語", new Locale("ja"));
+        SUPPORTED_LOCALES.put("한국어", new Locale("ko"));
+        SUPPORTED_LOCALES.put("العربية (الأردن)", new Locale("ar", "JO"));
+        SUPPORTED_LOCALES.put("Latviešu", new Locale("lv"));
+        SUPPORTED_LOCALES.put("Eesti", new Locale("et"));
+        SUPPORTED_LOCALES.put("Português", new Locale("pt"));
+        SUPPORTED_LOCALES.put("Deutsch", new Locale("de"));
+        SUPPORTED_LOCALES.put("ไทย", new Locale("th"));
+        SUPPORTED_LOCALES.put("हिन्दी", new Locale("hi"));
+        SUPPORTED_LOCALES.put("বাংলা", new Locale("bn"));
+        SUPPORTED_LOCALES.put("پنجابی", new Locale("pa", "PK"));
+        SUPPORTED_LOCALES.put("Tiếng Việt", new Locale("vi"));
+        SUPPORTED_LOCALES.put("粵語", new Locale("yue"));
+        SUPPORTED_LOCALES.put("Türkçe", new Locale("tr"));
+        SUPPORTED_LOCALES.put("Bahasa Indonesia", new Locale("id"));
+        SUPPORTED_LOCALES.put("اردو", new Locale("ur"));
+        SUPPORTED_LOCALES.put("Italiano", new Locale("it"));
+    }
 
     transient Logger log;
     transient ISensorHub hub;
@@ -398,6 +428,45 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         toolbar.setWidth(100.0f, Unit.PERCENTAGE);
         toolbar.setSpacing(true);
         toolbar.setStyleName("toolbar");
+
+        // Language Selector
+        final ComboBox langSelect = new ComboBox();
+        langSelect.setTextInputAllowed(false);
+        langSelect.setNullSelectionAllowed(false);
+        langSelect.setWidth(150, Unit.PIXELS);
+        langSelect.addStyleName(STYLE_SMALL);
+
+        for (String lang : SUPPORTED_LOCALES.keySet()) {
+            langSelect.addItem(lang);
+        }
+
+        // Set current value
+        Locale current = getLocale();
+        if (current == null) current = Locale.ENGLISH;
+
+        // Find best match
+        String selectedLang = "English";
+        for (Map.Entry<String, Locale> entry : SUPPORTED_LOCALES.entrySet()) {
+            if (entry.getValue().getLanguage().equals(current.getLanguage())) {
+                selectedLang = entry.getKey();
+                break;
+            }
+        }
+        langSelect.setValue(selectedLang);
+
+        langSelect.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                String selected = (String) event.getProperty().getValue();
+                if (selected != null) {
+                    Locale newLocale = SUPPORTED_LOCALES.get(selected);
+                    getSession().setLocale(newLocale);
+                    getPage().reload();
+                }
+            }
+        });
+        toolbar.addComponent(langSelect);
+        toolbar.setComponentAlignment(langSelect, Alignment.MIDDLE_LEFT);
 
         // shutdown button
         Button shutdownButton = new Button(I18N.get("action.shutdown"));
