@@ -21,14 +21,33 @@ public class I18N {
 
         try {
             ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
-            return bundle.getString(key);
+            String value = bundle.getString(key);
+            // Always format to handle escaped quotes (e.g., '' -> ')
+            return MessageFormat.format(value, new Object[0]);
         } catch (MissingResourceException e) {
             return "!" + key + "!";
         }
     }
 
     public static String get(String key, Object... args) {
-        String value = get(key);
-        return MessageFormat.format(value, args);
+        // We cannot call get(key) here because it would format once, and then format again below
+        // which might break if the first format produced something that looks like a pattern.
+        // Instead, retrieve raw string and format once.
+        Locale locale = null;
+        if (VaadinSession.getCurrent() != null) {
+            locale = VaadinSession.getCurrent().getLocale();
+        }
+
+        if (locale == null) {
+            locale = Locale.ENGLISH;
+        }
+
+        try {
+            ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
+            String value = bundle.getString(key);
+            return MessageFormat.format(value, args);
+        } catch (MissingResourceException e) {
+            return "!" + key + "!";
+        }
     }
 }
