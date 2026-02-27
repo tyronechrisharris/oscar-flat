@@ -90,6 +90,15 @@ public class BasicSecurityConfigForm extends GenericConfigForm
             buildTwoFactorSection((BasicSecurityRealmConfig.UserConfig)beanItem.getBean());
     }
 
+    @Override
+    protected boolean isFieldVisible(String propId)
+    {
+        if (propId.endsWith("twoFactorSecret") || propId.endsWith("isTwoFactorEnabled"))
+            return false;
+
+        return super.isFieldVisible(propId);
+    }
+
     private void buildTwoFactorSection(final BasicSecurityRealmConfig.UserConfig userConfig)
     {
         VerticalLayout layout = new VerticalLayout();
