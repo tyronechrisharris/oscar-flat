@@ -330,11 +330,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         stack.setSelectedTab(0);
         selectStackItem(stack);
 
-        // register to module registry events
-        hub.getEventBus().newSubscription()
-                .withTopicID(ModuleRegistry.EVENT_GROUP_ID)
-                .consume(this::handleEvent)
-                .thenAccept(s -> moduleEventsSub = s);
+        buildMainUI();
     }
 
 
@@ -1602,6 +1598,251 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
     public Logger getOshLogger()
     {
         return adminModule.getLogger();
+    }
+
+    protected void showLogin()
+    {
+        Window loginWindow = new Window("Login");
+        loginWindow.setModal(true);
+        loginWindow.setClosable(false);
+        loginWindow.setResizable(false);
+        loginWindow.setWidth("300px");
+        loginWindow.center();
+
+        FormLayout layout = new FormLayout();
+        layout.setMargin(true);
+        layout.setSpacing(true);
+
+        TextField username = new TextField("Username");
+        username.focus();
+        layout.addComponent(username);
+
+        PasswordField password = new PasswordField("Password");
+        layout.addComponent(password);
+
+        Button loginButton = new Button("Login");
+        loginButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        loginButton.addClickListener(e -> {
+            String user = username.getValue();
+            String pass = password.getValue();
+
+            // Check credentials
+            IUserInfo userInfo = hub.getSecurityManager().getUserInfo(user);
+            if (userInfo != null && userInfo.getPassword() != null)
+            {
+                 Credential stored = Credential.getCredential(userInfo.getPassword());
+                 if (stored.check(pass))
+                 {
+                     if (userInfo instanceof UserConfig && ((UserConfig)userInfo).isTwoFactorEnabled)
+                     {
+                         loginWindow.close();
+                         showTwoFactorAuth(userInfo, pass);
+                     }
+                     else
+                     {
+                         loginWindow.close();
+                         performLogin(userInfo, pass);
+                     }
+                     return;
+                 }
+            }
+
+            Notification.show("Login Failed", "Invalid username or password", Notification.Type.ERROR_MESSAGE);
+        });
+        layout.addComponent(loginButton);
+
+        loginWindow.setContent(layout);
+        addWindow(loginWindow);
+    }
+
+    protected void showTwoFactorAuth(IUserInfo user, String password)
+    {
+        Window totpWindow = new Window("Two-Factor Authentication");
+        totpWindow.setModal(true);
+        totpWindow.setClosable(false);
+        totpWindow.setResizable(false);
+        totpWindow.setWidth("300px");
+        totpWindow.center();
+
+        FormLayout layout = new FormLayout();
+        layout.setMargin(true);
+        layout.setSpacing(true);
+
+        TextField code = new TextField("Verification Code");
+        code.focus();
+        layout.addComponent(code);
+
+        Button verifyButton = new Button("Verify");
+        verifyButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        verifyButton.addClickListener(e -> {
+            String c = code.getValue();
+            String secret = ((UserConfig)user).twoFactorSecret;
+
+            if (TOTPUtils.validateCode(secret, c))
+            {
+                totpWindow.close();
+                performLogin(user, password);
+            }
+            else
+            {
+                Notification.show("Verification Failed", "Invalid code", Notification.Type.ERROR_MESSAGE);
+            }
+        });
+        layout.addComponent(verifyButton);
+
+        totpWindow.setContent(layout);
+        addWindow(totpWindow);
+    }
+
+    protected void performLogin(IUserInfo user, String password)
+    {
+         try {
+             VaadinService.getCurrentRequest().getWrappedSession().setAttribute("2FA_VERIFIED", true);
+             securityHandler.setCurrentUser(user.getId());
+             buildMainUI();
+         } catch (Exception e) {
+             DisplayUtils.showErrorPopup("Login Error", e);
+         }
+    }
+
+    protected void buildMainUI() {
+        // log request
+        logInitRequest(VaadinService.getCurrentRequest());
+
+        // security check
+        if (!securityHandler.hasPermission(securityHandler.admin_access))
+        {
+            DisplayUtils.showUnauthorizedAccess(securityHandler.admin_access.getErrorMessage());
+            securityHandler.clearCurrentUser();
+            return;
+        }
+
+        // register new field converter for integer numbers
+        ConverterFactory converterFactory = new DefaultConverterFactory() {
+            @Override
+            @SuppressWarnings("unchecked")
+            protected <Presentation, Model> Converter<Presentation, Model> findConverter(
+                    Class<Presentation> presentationType, Class<Model> modelType) {
+                // Handle String <-> Integer/Short/Long
+                if (presentationType == String.class &&
+                        (modelType == Long.class || modelType == Integer.class || modelType == Short.class )) {
+                    return (Converter<Presentation, Model>) new StringToIntegerConverter() {
+                        @Override
+                        protected NumberFormat getFormat(Locale locale) {
+                            NumberFormat format = super.getFormat(Locale.US);
+                            format.setGroupingUsed(false);
+                            return format;
+                        }
+                    };
+                }
+                // Let default factory handle the rest
+                return super.findConverter(presentationType, modelType);
+            }
+        };
+        VaadinSession.getCurrent().setConverterFactory(converterFactory);
+
+        // init main panels
+        HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
+        splitPanel.setMinSplitPosition(300.0f, Unit.PIXELS);
+        splitPanel.setMaxSplitPosition(30.0f, Unit.PERCENTAGE);
+        splitPanel.setSplitPosition(350.0f, Unit.PIXELS);
+        setContent(splitPanel);
+
+        // build left pane
+        VerticalLayout leftPane = new VerticalLayout();
+        leftPane.setSizeFull();
+        leftPane.setSpacing(false);
+        leftPane.setMargin(false);
+
+        // header image and title
+        Component header = buildHeader();
+        leftPane.addComponent(header);
+        leftPane.setExpandRatio(header, 0);
+
+        // toolbar
+        Component toolbar = buildToolbar();
+        leftPane.addComponent(toolbar);
+        leftPane.setExpandRatio(toolbar, 0);
+
+        // accordion with several sections
+        moduleTables.clear();
+        final var stack = moduleStack = new Accordion();
+        stack.setSizeFull();
+        stack.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event)
+            {
+                selectStackItem(stack);
+            }
+        });
+        VerticalLayout layout;
+        Tab tab;
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Sensors");
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.VIDEO_CAMERA);
+        //tab.setIcon(FontAwesome.STETHOSCOPE);
+        tab.setIcon(FontAwesome.RSS);
+        buildModuleList(layout, SensorConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Databases");
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.DATABASE);
+        buildModuleList(layout, DatabaseConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Processing");
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.GEARS);
+        buildModuleList(layout, ProcessConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Services");
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.CLOUD_DOWNLOAD);
+        //tab.setIcon(FontAwesome.CUBES);
+        tab.setIcon(FontAwesome.TASKS);
+        buildModuleList(layout, ServiceConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Clients");
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.CLOUD_UPLOAD);
+        buildModuleList(layout, ClientConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Network");
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.SIGNAL);
+        tab.setIcon(FontAwesome.SITEMAP);
+        buildNetworkModuleList(layout);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, "Security");
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.LOCK);
+        buildModuleList(layout, SecurityModuleConfig.class);
+
+        leftPane.addComponent(stack);
+        leftPane.setExpandRatio(stack, 1);
+        splitPanel.addComponent(leftPane);
+
+        // init config area
+        configArea = new VerticalLayout();
+        configArea.setMargin(true);
+        splitPanel.addComponent(configArea);
+
+        // select first tab
+        stack.setSelectedTab(0);
+        selectStackItem(stack);
+
+        // register to module registry events
+        hub.getEventBus().newSubscription()
+                .withTopicID(ModuleRegistry.EVENT_GROUP_ID)
+                .consume(this::handleEvent)
+                .thenAccept(s -> moduleEventsSub = s);
     }
 
     protected String getModuleVersion(IModule<?> module){
