@@ -1,3 +1,11 @@
+build/
+.gradle/
+**/build/
+**/.gradle/
+target/
+**/target/
+include/osh-core/sensorhub-webui-core/widgetset/src/main/resources/VAADIN/widgetsets/
+include/osh-core/sensorhub-webui-core/widgetset/src/main/resources/VAADIN/themes/sensorhub/styles.css
 # Gradle
 .gradle/
 build/

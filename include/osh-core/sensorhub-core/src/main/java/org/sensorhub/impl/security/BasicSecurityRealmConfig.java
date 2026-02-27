@@ -87,6 +87,9 @@ public class BasicSecurityRealmConfig extends SecurityModuleConfig
         //public String certificate;
         public List<String> roles = new ArrayList<>();
         
+        public String twoFactorSecret;
+        public boolean isTwoFactorEnabled;
+
         @Override
         public String getId()
         {

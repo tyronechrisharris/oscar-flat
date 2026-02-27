@@ -45,6 +45,10 @@ public class AdminUIServlet extends VaadinServlet
         {
             Principal user = request.getUserPrincipal();
             if (user != null)
+            {
+                securityHandler.setCurrentUser(user.getName());
+                securityHandler.checkPermission(securityHandler.admin_access);
+            }
                 securityHandler.setCurrentUser(user.getName());
             
             securityHandler.checkPermission(securityHandler.admin_access);
