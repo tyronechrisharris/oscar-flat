@@ -6,3 +6,22 @@ target/
 **/target/
 include/osh-core/sensorhub-webui-core/widgetset/src/main/resources/VAADIN/widgetsets/
 include/osh-core/sensorhub-webui-core/widgetset/src/main/resources/VAADIN/themes/sensorhub/styles.css
+# Gradle
+.gradle/
+build/
+**/.gradle/
+**/build/
+!src/**/build/
+
+# IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+
+# Logs
+*.log

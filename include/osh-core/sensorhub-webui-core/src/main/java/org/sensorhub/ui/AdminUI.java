@@ -100,15 +100,9 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.server.VaadinServletRequest;
-import org.sensorhub.impl.security.BasicSecurityRealmConfig.UserConfig;
-import org.sensorhub.impl.security.TOTPUtils;
-import org.sensorhub.api.security.IUserInfo;
-import org.eclipse.jetty.util.security.Credential;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 
 
 @Theme("sensorhub")
@@ -119,20 +113,47 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
     private static final String LOG_INIT_MSG = "New connection to admin UI (from ip={}, user={})";
     private static final String LOG_ACTION_MSG = "New UI action: {} (from ip={}, user={})";
 
-    private static final Action ADD_MODULE_ACTION = new Action("Add New Module", new ThemeResource("icons/module_add.png"));
-    private static final Action ADD_SUBMODULE_ACTION = new Action("Add Submodule", new ThemeResource("icons/module_add.png"));
-    private static final Action REMOVE_MODULE_ACTION = new Action("Remove Module", new ThemeResource("icons/module_delete.png"));
-    private static final Action REMOVE_SUBMODULE_ACTION = new Action("Remove Submodule", new ThemeResource("icons/module_delete.png"));
-    private static final Action START_MODULE_ACTION = new Action("Start", new ThemeResource("icons/enable.png"));
-    private static final Action STOP_MODULE_ACTION = new Action("Stop", new ThemeResource("icons/disable.gif"));
-    private static final Action RESTART_MODULE_ACTION = new Action("Restart", new ThemeResource("icons/refresh.gif"));
-    private static final Action REINIT_MODULE_ACTION = new Action("Force Init", new ThemeResource("icons/refresh.gif"));
-    private static final Action SELECT_ALL_MODULES_ACTION = new Action("Select All Modules");
-    private static final Action DESELECT_ALL_MODULES_ACTION = new Action("Deselect All Modules");
+    private Action ADD_MODULE_ACTION;
+    private Action ADD_SUBMODULE_ACTION;
+    private Action REMOVE_MODULE_ACTION;
+    private Action REMOVE_SUBMODULE_ACTION;
+    private Action START_MODULE_ACTION;
+    private Action STOP_MODULE_ACTION;
+    private Action RESTART_MODULE_ACTION;
+    private Action REINIT_MODULE_ACTION;
+    private Action SELECT_ALL_MODULES_ACTION;
+    private Action DESELECT_ALL_MODULES_ACTION;
     private static final Resource LOGO_ICON = new ThemeResource("icons/osh_logo_small.png");
     private static final String STYLE_LOGO = "logo";
     private static final String PROP_STATE = "state";
     private static final String PROP_MODULE_OBJECT = "module";
+
+    static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<>();
+    static {
+        SUPPORTED_LOCALES.put("English", Locale.ENGLISH);
+        SUPPORTED_LOCALES.put("Español", new Locale("es"));
+        SUPPORTED_LOCALES.put("Français", new Locale("fr"));
+        SUPPORTED_LOCALES.put("العربية", new Locale("ar"));
+        SUPPORTED_LOCALES.put("Русский", new Locale("ru"));
+        SUPPORTED_LOCALES.put("简体中文", new Locale("zh", "CN"));
+        SUPPORTED_LOCALES.put("日本語", new Locale("ja"));
+        SUPPORTED_LOCALES.put("한국어", new Locale("ko"));
+        SUPPORTED_LOCALES.put("العربية (الأردن)", new Locale("ar", "JO"));
+        SUPPORTED_LOCALES.put("Latviešu", new Locale("lv"));
+        SUPPORTED_LOCALES.put("Eesti", new Locale("et"));
+        SUPPORTED_LOCALES.put("Português", new Locale("pt"));
+        SUPPORTED_LOCALES.put("Deutsch", new Locale("de"));
+        SUPPORTED_LOCALES.put("ไทย", new Locale("th"));
+        SUPPORTED_LOCALES.put("हिन्दी", new Locale("hi"));
+        SUPPORTED_LOCALES.put("বাংলা", new Locale("bn"));
+        SUPPORTED_LOCALES.put("پنجابی", new Locale("pa", "PK"));
+        SUPPORTED_LOCALES.put("Tiếng Việt", new Locale("vi"));
+        SUPPORTED_LOCALES.put("粵語", new Locale("yue"));
+        SUPPORTED_LOCALES.put("Türkçe", new Locale("tr"));
+        SUPPORTED_LOCALES.put("Bahasa Indonesia", new Locale("id"));
+        SUPPORTED_LOCALES.put("اردو", new Locale("ur"));
+        SUPPORTED_LOCALES.put("Italiano", new Locale("it"));
+    }
 
     transient Logger log;
     transient ISensorHub hub;
@@ -165,30 +186,149 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
             throw new IllegalStateException("Cannot get UI module configuration", e);
         }
 
-        try {
-           if (securityHandler.isAccessControlEnabled()) {
-               if (securityHandler.getCurrentUser() == null) {
-                   showLogin();
-                   return;
-               } else {
-                    // Check if 2FA verification is needed
-                    Boolean verified = (Boolean) VaadinSession.getCurrent().getAttribute("2FA_VERIFIED");
-                    if (!Boolean.TRUE.equals(verified)) {
-                        IUserInfo user = securityHandler.getCurrentUser();
-                        if (user instanceof UserConfig && ((UserConfig)user).isTwoFactorEnabled) {
-                            showTwoFactorAuth(user, null);
-                            return;
-                        } else {
-                            VaadinSession.getCurrent().setAttribute("2FA_VERIFIED", true);
-                        }
-                    }
-               }
-           }
-        } catch (Exception e) {
-           // If accessing getCurrentUser() throws when no user is set, we catch it here and show login
-           showLogin();
-           return;
+        // log request
+        logInitRequest(request);
+
+        // init actions
+        ADD_MODULE_ACTION = new Action(I18N.get("action.addModule"), new ThemeResource("icons/module_add.png"));
+        ADD_SUBMODULE_ACTION = new Action(I18N.get("action.addSubmodule"), new ThemeResource("icons/module_add.png"));
+        REMOVE_MODULE_ACTION = new Action(I18N.get("action.removeModule"), new ThemeResource("icons/module_delete.png"));
+        REMOVE_SUBMODULE_ACTION = new Action(I18N.get("action.removeSubmodule"), new ThemeResource("icons/module_delete.png"));
+        START_MODULE_ACTION = new Action(I18N.get("action.start"), new ThemeResource("icons/enable.png"));
+        STOP_MODULE_ACTION = new Action(I18N.get("action.stop"), new ThemeResource("icons/disable.gif"));
+        RESTART_MODULE_ACTION = new Action(I18N.get("action.restart"), new ThemeResource("icons/refresh.gif"));
+        REINIT_MODULE_ACTION = new Action(I18N.get("action.forceInit"), new ThemeResource("icons/refresh.gif"));
+        SELECT_ALL_MODULES_ACTION = new Action(I18N.get("action.selectAll"));
+        DESELECT_ALL_MODULES_ACTION = new Action(I18N.get("action.deselectAll"));
+
+        // security check
+        if (!securityHandler.hasPermission(securityHandler.admin_access))
+        {
+            DisplayUtils.showUnauthorizedAccess(securityHandler.admin_access.getErrorMessage());
+            securityHandler.clearCurrentUser();
+            return;
         }
+
+        // register new field converter for integer numbers
+        ConverterFactory converterFactory = new DefaultConverterFactory() {
+            @Override
+            @SuppressWarnings("unchecked")
+            protected <Presentation, Model> Converter<Presentation, Model> findConverter(
+                    Class<Presentation> presentationType, Class<Model> modelType) {
+                // Handle String <-> Integer/Short/Long
+                if (presentationType == String.class &&
+                        (modelType == Long.class || modelType == Integer.class || modelType == Short.class )) {
+                    return (Converter<Presentation, Model>) new StringToIntegerConverter() {
+                        @Override
+                        protected NumberFormat getFormat(Locale locale) {
+                            NumberFormat format = super.getFormat(Locale.US);
+                            format.setGroupingUsed(false);
+                            return format;
+                        }
+                    };
+                }
+                // Let default factory handle the rest
+                return super.findConverter(presentationType, modelType);
+            }
+        };
+        VaadinSession.getCurrent().setConverterFactory(converterFactory);
+
+        // init main panels
+        HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
+        splitPanel.setMinSplitPosition(300.0f, Unit.PIXELS);
+        splitPanel.setMaxSplitPosition(30.0f, Unit.PERCENTAGE);
+        splitPanel.setSplitPosition(350.0f, Unit.PIXELS);
+        setContent(splitPanel);
+
+        // build left pane
+        VerticalLayout leftPane = new VerticalLayout();
+        leftPane.setSizeFull();
+        leftPane.setSpacing(false);
+        leftPane.setMargin(false);
+
+        // header image and title
+        Component header = buildHeader();
+        leftPane.addComponent(header);
+        leftPane.setExpandRatio(header, 0);
+
+        // toolbar
+        Component toolbar = buildToolbar();
+        leftPane.addComponent(toolbar);
+        leftPane.setExpandRatio(toolbar, 0);
+
+        // accordion with several sections
+        moduleTables.clear();
+        final var stack = moduleStack = new Accordion();
+        stack.setSizeFull();
+        stack.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event)
+            {
+                selectStackItem(stack);
+            }
+        });
+        VerticalLayout layout;
+        Tab tab;
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.sensors"));
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.VIDEO_CAMERA);
+        //tab.setIcon(FontAwesome.STETHOSCOPE);
+        tab.setIcon(FontAwesome.RSS);
+        buildModuleList(layout, SensorConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.databases"));
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.DATABASE);
+        buildModuleList(layout, DatabaseConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.processing"));
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.GEARS);
+        buildModuleList(layout, ProcessConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.services"));
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.CLOUD_DOWNLOAD);
+        //tab.setIcon(FontAwesome.CUBES);
+        tab.setIcon(FontAwesome.TASKS);
+        buildModuleList(layout, ServiceConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.clients"));
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.CLOUD_UPLOAD);
+        buildModuleList(layout, ClientConfig.class);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.network"));
+        //tab.setIcon(ACC_TAB_ICON);
+        //tab.setIcon(FontAwesome.SIGNAL);
+        tab.setIcon(FontAwesome.SITEMAP);
+        buildNetworkModuleList(layout);
+
+        layout = new VerticalLayout();
+        tab = stack.addTab(layout, I18N.get("tab.security"));
+        //tab.setIcon(ACC_TAB_ICON);
+        tab.setIcon(FontAwesome.LOCK);
+        buildModuleList(layout, SecurityModuleConfig.class);
+
+        leftPane.addComponent(stack);
+        leftPane.setExpandRatio(stack, 1);
+        splitPanel.addComponent(leftPane);
+
+        // init config area
+        configArea = new VerticalLayout();
+        configArea.setMargin(true);
+        splitPanel.addComponent(configArea);
+
+        // select first tab
+        stack.setSelectedTab(0);
+        selectStackItem(stack);
 
         buildMainUI();
     }
@@ -227,7 +367,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         header.setComponentAlignment(img, Alignment.MIDDLE_LEFT);
 
         // title
-        Label title = new Label("OpenSensorHub");
+        Label title = new Label(I18N.get("app.title"));
         //title.addStyleName(STYLE_H2);
         title.addStyleName(STYLE_LOGO);
         //title.setWidth(null);
@@ -247,7 +387,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
             {
                 String version = ModuleUtils.getModuleInfo(getClass()).getModuleVersion();
                 String buildNumber = ModuleUtils.getBuildNumber(getClass());
-                Window popup = new Window("<b>About OpenSensorHub</b>");
+                Window popup = new Window("<b>" + I18N.get("about.title") + "</b>");
                 popup.setIcon(LOGO_ICON);
                 popup.setCaptionAsHtml(true);
                 popup.setModal(true);
@@ -257,16 +397,15 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                 VerticalLayout content = new VerticalLayout();
                 content.setMargin(true);
                 content.setSpacing(true);
-                content.addComponent(new Label("A software platform for building smart sensor networks and the Internet of Things"));
-                content.addComponent(new Label("Licenced under <a href=\"https://www.mozilla.org/en-US/MPL/2.0\"" +
-                        " target=\"_blank\">Mozilla Public License v2.0</a>", ContentMode.HTML));
-                content.addComponent(new Label("<b>Version:</b> " + (version != null ? version: "?"), ContentMode.HTML));
-                content.addComponent(new Label("<b>Build Number:</b> " + (buildNumber != null ? buildNumber: "?"), ContentMode.HTML));
+                content.addComponent(new Label(I18N.get("about.desc")));
+                content.addComponent(new Label(I18N.get("about.license"), ContentMode.HTML));
+                content.addComponent(new Label("<b>" + I18N.get("about.version") + "</b> " + (version != null ? version: "?"), ContentMode.HTML));
+                content.addComponent(new Label("<b>" + I18N.get("about.build") + "</b> " + (buildNumber != null ? buildNumber: "?"), ContentMode.HTML));
 
                 // If the config has a friendly node name
                 if (adminModule.getConfiguration().deploymentName != null && !adminModule.getConfiguration().deploymentName.isEmpty()) {
 
-                    content.addComponent(new Label("<b>Deployment Name:</b> " + adminModule.getConfiguration().deploymentName, ContentMode.HTML));
+                    content.addComponent(new Label("<b>" + I18N.get("about.deployment") + "</b> " + adminModule.getConfiguration().deploymentName, ContentMode.HTML));
                 }
                 popup.setContent(content);
                 addWindow(popup);
@@ -286,9 +425,48 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         toolbar.setSpacing(true);
         toolbar.setStyleName("toolbar");
 
+        // Language Selector
+        final ComboBox langSelect = new ComboBox();
+        langSelect.setTextInputAllowed(false);
+        langSelect.setNullSelectionAllowed(false);
+        langSelect.setWidth(150, Unit.PIXELS);
+        langSelect.addStyleName(STYLE_SMALL);
+
+        for (String lang : SUPPORTED_LOCALES.keySet()) {
+            langSelect.addItem(lang);
+        }
+
+        // Set current value
+        Locale current = getLocale();
+        if (current == null) current = Locale.ENGLISH;
+
+        // Find best match
+        String selectedLang = "English";
+        for (Map.Entry<String, Locale> entry : SUPPORTED_LOCALES.entrySet()) {
+            if (entry.getValue().getLanguage().equals(current.getLanguage())) {
+                selectedLang = entry.getKey();
+                break;
+            }
+        }
+        langSelect.setValue(selectedLang);
+
+        langSelect.addValueChangeListener(new ValueChangeListener() {
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                String selected = (String) event.getProperty().getValue();
+                if (selected != null) {
+                    Locale newLocale = SUPPORTED_LOCALES.get(selected);
+                    getSession().setLocale(newLocale);
+                    getPage().reload();
+                }
+            }
+        });
+        toolbar.addComponent(langSelect);
+        toolbar.setComponentAlignment(langSelect, Alignment.MIDDLE_LEFT);
+
         // shutdown button
-        Button shutdownButton = new Button("Shutdown");
-        shutdownButton.setDescription("Shutdown SensorHub");
+        Button shutdownButton = new Button(I18N.get("action.shutdown"));
+        shutdownButton.setDescription(I18N.get("tooltip.shutdown"));
         //shutdownButton.setIcon(DEL_ICON);
         shutdownButton.setIcon(FontAwesome.POWER_OFF);
         shutdownButton.addStyleName(STYLE_SMALL);
@@ -305,7 +483,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                     return;
                 }
 
-                final ConfirmDialog popup = new ConfirmDialog("Are you sure you want to shutdown the sensor hub?");
+                final ConfirmDialog popup = new ConfirmDialog(I18N.get("dialog.shutdown.confirm"));
                 popup.addCloseListener(new CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e)
@@ -317,8 +495,8 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                             disconnectFromModuleRegistry();
 
                             Notification notif = new Notification(
-                                    FontAwesome.WARNING.getHtml() + "&nbsp; Shutdown Initiated...",
-                                    "UI will stop responding",
+                                    FontAwesome.WARNING.getHtml() + "&nbsp; " + I18N.get("dialog.shutdown.title"),
+                                    I18N.get("dialog.shutdown.message"),
                                     Notification.Type.ERROR_MESSAGE);
                             notif.setHtmlContentAllowed(true);
                             notif.show(getPage());
@@ -346,8 +524,8 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         toolbar.addComponent(shutdownButton);
 
         // logout button
-        Button logoutButton = new Button("Logout");
-        logoutButton.setDescription("Logout from OSH node");
+        Button logoutButton = new Button(I18N.get("action.logout"));
+        logoutButton.setDescription(I18N.get("tooltip.logout"));
         logoutButton.setIcon(FontAwesome.SIGN_OUT);
         logoutButton.addStyleName(STYLE_SMALL);
         logoutButton.addStyleName(STYLE_BORDERLESS);
@@ -356,7 +534,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
             @Override
             public void buttonClick(ClickEvent event)
             {
-                final ConfirmDialog popup = new ConfirmDialog("Are you sure you want to logout?");
+                final ConfirmDialog popup = new ConfirmDialog(I18N.get("dialog.logout.confirm"));
                 popup.addCloseListener(new CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e)
@@ -379,8 +557,8 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         toolbar.addComponent(logoutButton);
 
         // apply changes button
-        Button saveButton = new Button("Save");
-        saveButton.setDescription("Save SensorHub Configuration");
+        Button saveButton = new Button(I18N.get("action.save"));
+        saveButton.setDescription(I18N.get("tooltip.save"));
         saveButton.setIcon(APPLY_ICON);
         saveButton.addStyleName(STYLE_SMALL);
         saveButton.addStyleName(STYLE_BORDERLESS);
@@ -396,7 +574,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                     return;
                 }
 
-                final ConfirmDialog popup = new ConfirmDialog("Are you sure you want to save the configuration (and override the previous one)?");
+                final ConfirmDialog popup = new ConfirmDialog(I18N.get("dialog.save.confirm"));
                 popup.addCloseListener(new CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e)
@@ -408,11 +586,11 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                             try
                             {
                                 moduleRegistry.saveModulesConfiguration();
-                                DisplayUtils.showOperationSuccessful("SensorHub Configuration Saved");
+                                DisplayUtils.showOperationSuccessful(I18N.get("msg.configSaved"));
                             }
                             catch (Exception ex)
                             {
-                                String msg = "Cannot save configuration";
+                                String msg = I18N.get("msg.configSaveError");
                                 DisplayUtils.showErrorPopup(msg, ex);
                             }
                         }
@@ -737,7 +915,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                         }
 
                         var targetText = (selectedModules.size() == 1) ? selectedModules.get(0).getName() : selectedModules.size() + " modules";
-                        final ConfirmDialog popup = new ConfirmDialog("Are you sure you want to remove " + targetText + "?</br>All settings will be lost.");
+                        final ConfirmDialog popup = new ConfirmDialog(I18N.get("dialog.remove.confirm", targetText));
                         popup.addCloseListener(new CloseListener() {
                             @Override
                             public void windowClose(CloseEvent e)
@@ -784,7 +962,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup(module.getName() + " could not be removed", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.removeError", module.getName()), ex);
                                         }
                                     }
                                 }
@@ -836,7 +1014,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                 }
                                 catch (Exception e)
                                 {
-                                    DisplayUtils.showErrorPopup("Cannot add submodule ", e);
+                                    DisplayUtils.showErrorPopup(I18N.get("msg.addSubmoduleError"), e);
                                 }
                             }
                         });
@@ -853,7 +1031,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                         }
 
                         var targetText = (selectedModules.size() == 1) ? selectedModules.get(0).getName() : selectedModules.size() + " modules";
-                        final ConfirmDialog popup = new ConfirmDialog("Are you sure you want to remove " + targetText + "?</br>All settings will be lost.");
+                        final ConfirmDialog popup = new ConfirmDialog(I18N.get("dialog.remove.confirm", targetText));
                         popup.addCloseListener(new CloseListener() {
                             @Override
                             public void windowClose(CloseEvent e)
@@ -880,7 +1058,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup("Submodule " + module.getName() + " could not be removed", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.removeError", "Submodule " + module.getName()), ex);
                                         }
                                     }
                                 }
@@ -931,7 +1109,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup(module.getName() + " could not be started", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.startError", module.getName()), ex);
                                         }
                                     }
                                 }
@@ -972,7 +1150,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup(module.getName() + " could not be stopped", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.stopError", module.getName()), ex);
                                         }
                                     }
                                 }
@@ -1013,7 +1191,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup(module.getName() + " could not be restarted", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.restartError", module.getName()), ex);
                                         }
                                     }
                                 }
@@ -1054,7 +1232,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                                         }
                                         catch (SensorHubException ex)
                                         {
-                                            DisplayUtils.showErrorPopup(module.getName() + " could not be reinitialized", ex);
+                                            DisplayUtils.showErrorPopup(I18N.get("msg.reinitError", module.getName()), ex);
                                         }
                                     }
                                 }

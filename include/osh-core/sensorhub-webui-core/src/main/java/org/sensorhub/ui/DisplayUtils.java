@@ -30,6 +30,12 @@ public class DisplayUtils
     public static String getPrettyName(String text)
     {
         StringBuilder buf = new StringBuilder(text.substring(text.lastIndexOf('.')+1));
+        String key = text.substring(text.lastIndexOf('.')+1);
+        String i18nValue = I18N.get(key);
+        if (!i18nValue.startsWith("!") || !i18nValue.endsWith("!"))
+            return i18nValue;
+
+        buf = new StringBuilder(key);
         for (int i=0; i<buf.length()-1; i++)
         {
             char c = buf.charAt(i);

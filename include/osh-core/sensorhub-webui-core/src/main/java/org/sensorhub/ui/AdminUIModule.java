@@ -190,6 +190,7 @@ public class AdminUIModule extends AbstractHttpServiceModule<AdminUIConfig> impl
             adminUIServlet.getServletContext().setAttribute(SERVLET_PARAM_MODULE, this);
             landingServlet.getServletContext().setAttribute(SERVLET_PARAM_MODULE, this);
             // httpServer.addServletSecurity("/*", true);
+            httpServer.addServletSecurity("/*", true);
 
             var server = getParentHub().getModuleRegistry().getModuleByType(HttpServer.class);
 
@@ -210,6 +211,8 @@ public class AdminUIModule extends AbstractHttpServiceModule<AdminUIConfig> impl
         // setup security
         // httpServer.addServletSecurity("/admin/*", true);
         // httpServer.addServletSecurity("/VAADIN/*", true);
+        httpServer.addServletSecurity("/admin/*", true);
+        httpServer.addServletSecurity("/VAADIN/*", true);
 
         setState(ModuleState.STARTED);
     }
