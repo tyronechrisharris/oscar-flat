@@ -85,7 +85,7 @@ public class ProcessAdminPanel extends DataSourceAdminPanel<IProcessModule<?>>
             addComponent(new Spacing());
             HorizontalLayout titleBar = new HorizontalLayout();
             titleBar.setSpacing(true);
-            Label sectionLabel = new Label("Process Inputs");
+            Label sectionLabel = new Label(I18N.get("processInputs1"));
             sectionLabel.addStyleName(STYLE_H3);
             sectionLabel.addStyleName(STYLE_COLORED);
             titleBar.addComponent(sectionLabel);
@@ -104,7 +104,7 @@ public class ProcessAdminPanel extends DataSourceAdminPanel<IProcessModule<?>>
             addComponent(new Spacing());
             HorizontalLayout titleBar = new HorizontalLayout();
             titleBar.setSpacing(true);
-            Label sectionLabel = new Label("Process Parameters");
+            Label sectionLabel = new Label(I18N.get("processParameters1"));
             sectionLabel.addStyleName(STYLE_H3);
             sectionLabel.addStyleName(STYLE_COLORED);
             titleBar.addComponent(sectionLabel);

@@ -77,7 +77,7 @@ public class ObjectTypeSelectionPopup extends Window
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
         
         // add OK button
-        Button okButton = new Button("OK");
+        Button okButton = new Button(I18N.get("ok1"));
         okButton.addClickListener(new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
 
@@ -102,7 +102,7 @@ public class ObjectTypeSelectionPopup extends Window
         if (callback instanceof ModuleTypeSelectionWithClearCallback)
         {
             // add clear button
-            Button clearButton = new Button("Select None");
+            Button clearButton = new Button(I18N.get("selectNone1"));
             clearButton.addClickListener(new Button.ClickListener() {
                 private static final long serialVersionUID = 1L;
                 

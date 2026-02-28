@@ -78,7 +78,7 @@ public class DataSourceAdminPanel<ModuleType extends IDataProducerModule<?>> ext
         // sensor info panel
         if (module.isInitialized())
         {
-            Label sectionLabel = new Label("Data Source Info");
+            Label sectionLabel = new Label(I18N.get("dataSourceInfo1"));
             sectionLabel.addStyleName(STYLE_H3);
             sectionLabel.addStyleName(STYLE_COLORED);
             addComponent(sectionLabel);
@@ -104,7 +104,7 @@ public class DataSourceAdminPanel<ModuleType extends IDataProducerModule<?>> ext
                 addComponent(new Spacing());
                 HorizontalLayout titleBar = new HorizontalLayout();
                 titleBar.setSpacing(true);
-                sectionLabel = new Label("Outputs");
+                sectionLabel = new Label(I18N.get("outputs1"));
                 sectionLabel.addStyleName(STYLE_H3);
                 sectionLabel.addStyleName(STYLE_COLORED);
                 titleBar.addComponent(sectionLabel);
@@ -112,7 +112,7 @@ public class DataSourceAdminPanel<ModuleType extends IDataProducerModule<?>> ext
                 
                 // refresh button
                 final Timer timer = new Timer();
-                final Button refreshButton = new Button("Refresh");
+                final Button refreshButton = new Button(I18N.get("refresh1"));
                 refreshButton.setDescription("Toggle auto-refresh data once per second");
                 refreshButton.setIcon(REFRESH_ICON);
                 refreshButton.addStyleName(STYLE_SMALL);
@@ -158,13 +158,13 @@ public class DataSourceAdminPanel<ModuleType extends IDataProducerModule<?>> ext
                             };
                             timer.schedule(autoRefreshTask, 0L, 1000L);
                             refreshButton.setIcon(FontAwesome.TIMES);
-                            refreshButton.setCaption("Stop");
+                            refreshButton.setCaption(I18N.get("stop1"));
                         }
                         else
                         {
                             autoRefreshTask.cancel();
                             refreshButton.setIcon(REFRESH_ICON);
-                            refreshButton.setCaption("Refresh");
+                            refreshButton.setCaption(I18N.get("refresh1"));
                         }
                     }
                 });               

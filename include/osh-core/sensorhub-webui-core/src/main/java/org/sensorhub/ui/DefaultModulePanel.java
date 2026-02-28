@@ -87,7 +87,7 @@ public class DefaultModulePanel<ModuleType extends IModule<? extends ModuleConfi
         if (!module.getLocalID().startsWith("$$"))
         {
             // apply changes button
-            Button applyButton = new Button("Apply Changes");
+            Button applyButton = new Button(I18N.get("applyChanges1"));
             applyButton.setIcon(APPLY_ICON);
             applyButton.addStyleName(STYLE_SMALL);
             applyButton.addStyleName("apply-button");

@@ -96,7 +96,7 @@ public class DatabaseAdminPanel extends DefaultModulePanel<IObsSystemDatabaseMod
             //layout.addComponent(new Label(""));
             HorizontalLayout titleBar = new HorizontalLayout();
             titleBar.setSpacing(true);
-            Label sectionLabel = new Label("Database Content");
+            Label sectionLabel = new Label(I18N.get("databaseContent1"));
             sectionLabel.addStyleName(STYLE_H3);
             sectionLabel.addStyleName(STYLE_COLORED);
             titleBar.addComponent(sectionLabel);

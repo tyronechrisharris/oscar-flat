@@ -71,7 +71,7 @@ public class DownloadOsgiBundlesPopup extends Window
         ProgressBar pb = new ProgressBar();
         pb.setIndeterminate(true);
         loading.addComponent(pb);
-        loading.addComponent(new Label("Loading Bundles Information..."));
+        loading.addComponent(new Label(I18N.get("loadingBundlesInformation1")));
         layout.addComponent(loading);
         
         // buttons bar
@@ -81,11 +81,11 @@ public class DownloadOsgiBundlesPopup extends Window
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
         
         // OK button
-        Button installBtn = new Button("Install Selected");
+        Button installBtn = new Button(I18N.get("installSelected1"));
         installBtn.addStyleName(UIConstants.STYLE_SMALL);
         buttons.addComponent(installBtn);
         
-        Button cancelBtn = new Button("Cancel");
+        Button cancelBtn = new Button(I18N.get("cancel1"));
         cancelBtn.addStyleName(UIConstants.STYLE_SMALL);
         cancelBtn.addClickListener(event -> DownloadOsgiBundlesPopup.this.close());
         buttons.addComponent(cancelBtn);

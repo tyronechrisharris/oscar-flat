@@ -673,9 +673,9 @@ public class GenericConfigForm extends VerticalLayout implements IModuleConfigFo
         chgButton.addStyleName(STYLE_SECTION_BUTTONS);
         chgButton.setIcon(EDIT_ICON);
         if (prop.getValue() == null)
-            chgButton.setCaption("Add");
+            chgButton.setCaption(I18N.get("add1"));
         else
-            chgButton.setCaption("Modify");
+            chgButton.setCaption(I18N.get("modify1"));
         
         chgButton.addClickListener(new ClickListener() {
             @Override
@@ -725,9 +725,9 @@ public class GenericConfigForm extends VerticalLayout implements IModuleConfigFo
         chgButton.addStyleName(STYLE_SECTION_BUTTONS);
         chgButton.setIcon(EDIT_ICON);
         if (prop.getValue() == null)
-            chgButton.setCaption("Add");
+            chgButton.setCaption(I18N.get("add1"));
         else
-            chgButton.setCaption("Modify");
+            chgButton.setCaption(I18N.get("modify1"));
                 
         // show popup to select among available module types
         final ObjectTypeSelectionWithClearCallback callback = new ObjectTypeSelectionWithClearCallback() {
@@ -762,7 +762,7 @@ public class GenericConfigForm extends VerticalLayout implements IModuleConfigFo
                 // don't display remove button if value is required
                 if (prop.isRequired())
                     return;
-                chgButton.setCaption("Remove");
+                chgButton.setCaption(I18N.get("remove1"));
             }   
             
             chgButton.addClickListener(new ClickListener() {

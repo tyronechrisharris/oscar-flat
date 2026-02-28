@@ -185,7 +185,7 @@ public class DatabaseStreamPanel extends VerticalLayout
         timeRangeLabel.addStyleName(UIConstants.STYLE_SMALL);
         updateTimeRange();
         layout.addComponent(timeRangeLabel);
-        layout.setCaption("Time Range:");
+        layout.setCaption(I18N.get("timeRange1"));
         
         final Button btn = new Button(FontAwesome.BAR_CHART);
         btn.setDescription(detailChart == null ? "Show Histogram" : "Hide Histogram");
@@ -220,7 +220,7 @@ public class DatabaseStreamPanel extends VerticalLayout
         });
         
         // refresh button
-        Button refreshButton = new Button("Refresh");
+        Button refreshButton = new Button(I18N.get("refresh1"));
         refreshButton.setDescription("Reload data from database");
         refreshButton.setIcon(UIConstants.REFRESH_ICON);
         refreshButton.addStyleName(UIConstants.STYLE_SMALL);
@@ -515,10 +515,10 @@ public class DatabaseStreamPanel extends VerticalLayout
         
         PagedTableControls controls = table.createControls();
         controls.getItemsPerPageLabel().setValue("Items");
-        controls.getBtnFirst().setCaption("First");
-        controls.getBtnLast().setCaption("Last");
-        controls.getBtnNext().setCaption("Next");
-        controls.getBtnPrevious().setCaption("Previous");
+        controls.getBtnFirst().setCaption(I18N.get("first1"));
+        controls.getBtnLast().setCaption(I18N.get("last1"));
+        controls.getBtnNext().setCaption(I18N.get("next1"));
+        controls.getBtnPrevious().setCaption(I18N.get("previous1"));
         //controls.getPageLabel().setValue("Current:");
         tableLayout.addComponent(controls);
         

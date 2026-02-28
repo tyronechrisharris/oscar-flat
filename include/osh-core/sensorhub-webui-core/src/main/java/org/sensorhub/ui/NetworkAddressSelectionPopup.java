@@ -61,7 +61,7 @@ public class NetworkAddressSelectionPopup extends Window
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
         
         // add useAddress button
-        Button okAddressButton = new Button("Use Address");
+        Button okAddressButton = new Button(I18N.get("useAddress1"));
         okAddressButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event)
@@ -72,7 +72,7 @@ public class NetworkAddressSelectionPopup extends Window
         buttons.addComponent(okAddressButton);
         
         // add useName button
-        Button okNameButton = new Button("Use Name");
+        Button okNameButton = new Button(I18N.get("useName1"));
         okNameButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event)

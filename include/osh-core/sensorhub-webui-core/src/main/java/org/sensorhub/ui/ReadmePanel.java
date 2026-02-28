@@ -74,12 +74,12 @@ public class ReadmePanel extends VerticalLayout {
             // Otherwise, display instructions for adding a readme file
             var header = new HorizontalLayout();
             header.setSpacing(true);
-            Label title = new Label("No README");
+            Label title = new Label(I18N.get("noReadme1"));
             title.addStyleName(UIConstants.STYLE_H2);
             header.addComponent(title);
             addComponent(header);
 
-            Button detailsBtn = new Button("Detailed Instructions");
+            Button detailsBtn = new Button(I18N.get("detailedInstructions1"));
             detailsBtn.setIcon(FontAwesome.CARET_RIGHT);
             //detailsBtn.setWidth(100.0f, Unit.PERCENTAGE);
 
