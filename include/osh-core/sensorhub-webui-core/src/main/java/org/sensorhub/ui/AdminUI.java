@@ -1787,7 +1787,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         Tab tab;
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Sensors");
+        tab = stack.addTab(layout, I18N.get("tab.sensors"));
         //tab.setIcon(ACC_TAB_ICON);
         //tab.setIcon(FontAwesome.VIDEO_CAMERA);
         //tab.setIcon(FontAwesome.STETHOSCOPE);
@@ -1795,19 +1795,19 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         buildModuleList(layout, SensorConfig.class);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Databases");
+        tab = stack.addTab(layout, I18N.get("tab.databases"));
         //tab.setIcon(ACC_TAB_ICON);
         tab.setIcon(FontAwesome.DATABASE);
         buildModuleList(layout, DatabaseConfig.class);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Processing");
+        tab = stack.addTab(layout, I18N.get("tab.processing"));
         //tab.setIcon(ACC_TAB_ICON);
         tab.setIcon(FontAwesome.GEARS);
         buildModuleList(layout, ProcessConfig.class);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Services");
+        tab = stack.addTab(layout, I18N.get("tab.services"));
         //tab.setIcon(ACC_TAB_ICON);
         //tab.setIcon(FontAwesome.CLOUD_DOWNLOAD);
         //tab.setIcon(FontAwesome.CUBES);
@@ -1815,20 +1815,20 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         buildModuleList(layout, ServiceConfig.class);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Clients");
+        tab = stack.addTab(layout, I18N.get("tab.clients"));
         //tab.setIcon(ACC_TAB_ICON);
         tab.setIcon(FontAwesome.CLOUD_UPLOAD);
         buildModuleList(layout, ClientConfig.class);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Network");
+        tab = stack.addTab(layout, I18N.get("tab.network"));
         //tab.setIcon(ACC_TAB_ICON);
         //tab.setIcon(FontAwesome.SIGNAL);
         tab.setIcon(FontAwesome.SITEMAP);
         buildNetworkModuleList(layout);
 
         layout = new VerticalLayout();
-        tab = stack.addTab(layout, "Security");
+        tab = stack.addTab(layout, I18N.get("tab.security"));
         //tab.setIcon(ACC_TAB_ICON);
         tab.setIcon(FontAwesome.LOCK);
         buildModuleList(layout, SecurityModuleConfig.class);
