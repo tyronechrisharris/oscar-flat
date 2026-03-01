@@ -75,17 +75,17 @@ export default function AdjudicationSelect(props: {
                         },
                 }}
             >
-                <ListSubheader>Real Alarm</ListSubheader>
+                <ListSubheader>{t('realAlarm')}</ListSubheader>
                 {AdjudicationCodes.getGroupCodes("Real Alarm").map((code) => (
                     <MenuItem key={code.code} value={code.label} sx={colorCodes.real}>{t(code.translationKey)}</MenuItem>
                 ))}
 
-                <ListSubheader>Innocent Alarm</ListSubheader>
+                <ListSubheader>{t('innocentAlarm')}</ListSubheader>
                 {AdjudicationCodes.getGroupCodes("Innocent Alarm").map((code) => (
                     <MenuItem key={code.code} value={code.label} sx={colorCodes.innocent}>{t(code.translationKey)}</MenuItem>
                 ))}
 
-                <ListSubheader>False Alarm</ListSubheader>
+                <ListSubheader>{t('falseAlarm')}</ListSubheader>
                 {AdjudicationCodes.getGroupCodes("False Alarm").map((code) => (
                     <MenuItem key={code.code} value={code.label} sx={colorCodes.false}>{t(code.translationKey)}</MenuItem>
                 ))}
@@ -100,7 +100,7 @@ export default function AdjudicationSelect(props: {
                     <MenuItem key={code.code} value={code.label} sx={colorCodes.other}>{t(code.translationKey)}</MenuItem>
                 ))}
 
-                <ListSubheader>Other</ListSubheader>
+                <ListSubheader>{t('other')}</ListSubheader>
                 {AdjudicationCodes.getGroupCodes("Other").map((code) => (
                     <MenuItem key={code.code} value={code.label} sx={colorCodes.other}>{t(code.translationKey)}</MenuItem>
                 ))}
