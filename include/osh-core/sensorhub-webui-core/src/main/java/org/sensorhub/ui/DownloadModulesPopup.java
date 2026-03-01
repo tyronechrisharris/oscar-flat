@@ -104,7 +104,7 @@ public class DownloadModulesPopup extends Window
         ProgressBar pb = new ProgressBar();
         pb.setIndeterminate(true);
         loading.addComponent(pb);
-        loading.addComponent(new Label("Loading Package Information..."));
+        loading.addComponent(new Label(I18N.get("loadingPackageInformation1")));
         layout.addComponent(loading);
         
         setContent(layout);

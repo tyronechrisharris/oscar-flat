@@ -1628,7 +1628,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         PasswordField password = new PasswordField("Password");
         layout.addComponent(password);
 
-        Button loginButton = new Button("Login");
+        Button loginButton = new Button(I18N.get("login1"));
         loginButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         loginButton.addClickListener(e -> {
             String user = username.getValue();
@@ -1680,7 +1680,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         code.focus();
         layout.addComponent(code);
 
-        Button verifyButton = new Button("Verify");
+        Button verifyButton = new Button(I18N.get("verify1"));
         verifyButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         verifyButton.addClickListener(e -> {
             String c = code.getValue();

@@ -192,7 +192,7 @@ public class LandingUI extends UI{
      * @return button or label
      */
     private Component buildEndpointComponent(String endpoint) {
-        Button button = new Button("VIEW");
+        Button button = new Button(I18N.get("view1"));
         button.addStyleNames(ValoTheme.BUTTON_LARGE, ValoTheme.BUTTON_ICON_ALIGN_RIGHT);
 
         String title = "No accessible endpoint";
@@ -264,7 +264,7 @@ public class LandingUI extends UI{
      */
     private Component createLogoutButton(){
         // logout button
-        Button logoutButton = new Button("Logout");
+        Button logoutButton = new Button(I18N.get("logout1"));
         logoutButton.setDescription("Logout from OSH node");
         logoutButton.setIcon(FontAwesome.SIGN_OUT);
         logoutButton.addStyleName(ValoTheme.BUTTON_LARGE);

@@ -66,7 +66,7 @@ public class CommProviderConfigForm extends GenericConfigForm
         else if (propId.endsWith(UIConstants.PROP_AUTOSTART))
             field.setVisible(false);
         else if (propId.endsWith(UIConstants.PROP_MODULECLASS))
-            field.setCaption("Provider Class");
+            field.setCaption(I18N.get("providerClass1"));
         
         return field;
     }

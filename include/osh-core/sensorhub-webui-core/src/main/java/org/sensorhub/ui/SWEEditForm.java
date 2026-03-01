@@ -148,7 +148,7 @@ public abstract class SWEEditForm extends SWECommonForm
         else if (component instanceof DataArray)
         {
             HorizontalLayout layout = getCaptionLayout(component);
-            layout.addComponent(new Label("Array component not supported"));
+            layout.addComponent(new Label(I18N.get("arrayComponentNotSupported1")));
             return layout;
         }
         else

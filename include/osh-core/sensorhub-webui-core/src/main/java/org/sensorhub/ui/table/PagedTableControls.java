@@ -12,17 +12,18 @@ import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.data.validator.IntegerRangeValidator;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.TextField;
+import org.sensorhub.ui.I18N;
 
 
 public class PagedTableControls extends HorizontalLayout {
 
     private ComboBox itemsPerPageSelect = new ComboBox();
-    private Label itemsPerPageLabel = new Label("Items per page:");
+    private Label itemsPerPageLabel = new Label(I18N.get("itemsPerPage1"));
     //private Label pageLabel = new Label("Page:&nbsp;", ContentMode.HTML);
-    private Button btnFirst = new Button("<<");
-    private Button btnPrevious = new Button("<");
-    private Button btnNext = new Button(">");
-    private Button btnLast = new Button(">>");
+    private Button btnFirst = new Button(I18N.get("first2"));
+    private Button btnPrevious = new Button(I18N.get("previous2"));
+    private Button btnNext = new Button(I18N.get("next2"));
+    private Button btnLast = new Button(I18N.get("last2"));
     private TextField currentPageTextField = new TextField();
 
     @SuppressWarnings("deprecation")

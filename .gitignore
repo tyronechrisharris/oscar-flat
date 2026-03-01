@@ -25,3 +25,6 @@ build/
 
 # Logs
 *.log
+web/oscar-viewer/node_modules
+web/oscar-viewer/.next
+web/oscar-viewer/web
