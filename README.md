@@ -61,7 +61,7 @@ After the build completes, it can be located in `build/distributions/`
     4. Choose your destination, (or leave the default) and extract.
 1. Launch the OSH node and PostGIS Database:
    The database management system is handled through Docker. The default launch scripts automatically build and run a PostGIS container using the `Dockerfile` located in `dist/release/postgis`, and then start the OSH node.
-   Run the launch script, `launch-all.sh` (or `launch.sh` within the `osh-node-oscar` folder directly if the database is already running) for linux/mac and `launch-all.bat` (or `launch.bat`) for windows.
+   Run the launch script, `launch-all.sh` (or `launch.sh` within the `osh-node-oscar` folder directly if the database is already running) for linux, `launch-all-arm.sh` (or `launch-arm.sh` if it exists) for mac, and `launch-all.bat` (or `launch.bat`) for windows.
 2. Access the OSH Node
 - Remote: **[ip-address]:8282/sensorhub/admin**
 - Locally:  **http://localhost:8282/sensorhub/admin**
