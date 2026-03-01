@@ -111,7 +111,7 @@ public class BasicSecurityConfigForm extends GenericConfigForm
         update2FAStatusLabel(statusLabel, userConfig.isTwoFactorEnabled);
         layout.addComponent(statusLabel);
 
-        final Button setupButton = new Button(userConfig.isTwoFactorEnabled ? "Reset 2FA" : "Enable 2FA");
+        final Button setupButton = new Button(userConfig.isTwoFactorEnabled ? I18N.get("reset2FA1") : I18N.get("enable2FA1"));
         setupButton.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event)
@@ -145,11 +145,11 @@ public class BasicSecurityConfigForm extends GenericConfigForm
 
         if (userID == null || userID.trim().isEmpty())
         {
-            Notification.show("Please enter a User ID first", Notification.Type.WARNING_MESSAGE);
+            Notification.show(I18N.get("pleaseEnterAUserIDFirst1"), Notification.Type.WARNING_MESSAGE);
             return;
         }
 
-        final Window popup = new Window("Setup Two-Factor Authentication");
+        final Window popup = new Window(I18N.get("setupTwoFactorAuthentication1"));
         popup.setModal(true);
         popup.setWidth("400px");
         popup.center();
@@ -210,13 +210,13 @@ public class BasicSecurityConfigForm extends GenericConfigForm
                     userConfig.twoFactorSecret = secret;
                     userConfig.isTwoFactorEnabled = true;
                     update2FAStatusLabel(statusLabel, true);
-                    setupButton.setCaption(I18N.get("reset2fa1"));
+                    setupButton.setCaption(I18N.get("reset2FA1"));
                     popup.close();
-                    com.vaadin.ui.Notification.show("2FA Enabled Successfully");
+                    com.vaadin.ui.Notification.show(I18N.get("twoFAEnabledSuccessfully1"));
                 }
                 else
                 {
-                    com.vaadin.ui.Notification.show("Invalid Code", com.vaadin.ui.Notification.Type.ERROR_MESSAGE);
+                    com.vaadin.ui.Notification.show(I18N.get("invalidCode1"), com.vaadin.ui.Notification.Type.ERROR_MESSAGE);
                 }
             }
         });
@@ -253,7 +253,7 @@ public class BasicSecurityConfigForm extends GenericConfigForm
             layout.setWidth(100.0f, Unit.PERCENTAGE);
             layout.setSpacing(true);
             layout.setCaption(I18N.get("permissions1"));
-            layout.setDescription("Allowed and denied permissions for users with this role");
+            layout.setDescription(I18N.get("allowedAndDeniedPermissionsForUsersWithThisRole1"));
             
             // permission table
             buildTable(layout);
