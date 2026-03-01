@@ -443,10 +443,18 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
 
     protected Component buildToolbar()
     {
-        HorizontalLayout toolbar = new HorizontalLayout();
+        VerticalLayout toolbar = new VerticalLayout();
         toolbar.setWidth(100.0f, Unit.PERCENTAGE);
         toolbar.setSpacing(true);
         toolbar.setStyleName("toolbar");
+
+        HorizontalLayout topToolbar = new HorizontalLayout();
+        topToolbar.setWidth(100.0f, Unit.PERCENTAGE);
+        topToolbar.setSpacing(true);
+
+        HorizontalLayout bottomToolbar = new HorizontalLayout();
+        bottomToolbar.setWidth(100.0f, Unit.PERCENTAGE);
+        bottomToolbar.setSpacing(true);
 
         // Language Selector
         final ComboBox langSelect = new ComboBox();
@@ -484,8 +492,8 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                 }
             }
         });
-        toolbar.addComponent(langSelect);
-        toolbar.setComponentAlignment(langSelect, Alignment.MIDDLE_LEFT);
+        bottomToolbar.addComponent(langSelect);
+        bottomToolbar.setComponentAlignment(langSelect, Alignment.MIDDLE_LEFT);
 
         // shutdown button
         Button shutdownButton = new Button(I18N.get("action.shutdown"));
@@ -544,7 +552,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                 addWindow(popup);
             }
         });
-        toolbar.addComponent(shutdownButton);
+        topToolbar.addComponent(shutdownButton);
 
         // logout button
         Button logoutButton = new Button(I18N.get("action.logout"));
@@ -577,7 +585,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                 addWindow(popup);
             }
         });
-        toolbar.addComponent(logoutButton);
+        topToolbar.addComponent(logoutButton);
 
         // apply changes button
         Button saveButton = new Button(I18N.get("action.save"));
@@ -623,7 +631,10 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                 addWindow(popup);
             }
         });
-        toolbar.addComponent(saveButton);
+        topToolbar.addComponent(saveButton);
+
+        toolbar.addComponent(topToolbar);
+        toolbar.addComponent(bottomToolbar);
 
         return toolbar;
     }
