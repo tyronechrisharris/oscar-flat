@@ -265,7 +265,7 @@ public class LandingUI extends UI{
     private Component createLogoutButton(){
         // logout button
         Button logoutButton = new Button(I18N.get("logout1"));
-        logoutButton.setDescription("Logout from OSH node");
+        logoutButton.setDescription(I18N.get("logoutFromOshNode1"));
         logoutButton.setIcon(FontAwesome.SIGN_OUT);
         logoutButton.addStyleName(ValoTheme.BUTTON_LARGE);
         logoutButton.setWidth("200px");

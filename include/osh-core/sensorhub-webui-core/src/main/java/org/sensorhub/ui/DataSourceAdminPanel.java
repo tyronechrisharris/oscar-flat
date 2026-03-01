@@ -113,7 +113,7 @@ public class DataSourceAdminPanel<ModuleType extends IDataProducerModule<?>> ext
                 // refresh button
                 final Timer timer = new Timer();
                 final Button refreshButton = new Button(I18N.get("refresh1"));
-                refreshButton.setDescription("Toggle auto-refresh data once per second");
+                refreshButton.setDescription(I18N.get("toggleAutoRefreshDataOncePerSecond1"));
                 refreshButton.setIcon(REFRESH_ICON);
                 refreshButton.addStyleName(STYLE_SMALL);
                 refreshButton.addStyleName(STYLE_QUIET);

@@ -1647,11 +1647,11 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         layout.setMargin(true);
         layout.setSpacing(true);
 
-        TextField username = new TextField("Username");
+        TextField username = new TextField(I18N.get("username1"));
         username.focus();
         layout.addComponent(username);
 
-        PasswordField password = new PasswordField("Password");
+        PasswordField password = new PasswordField(I18N.get("password1"));
         layout.addComponent(password);
 
         Button loginButton = new Button(I18N.get("login1"));
@@ -1681,7 +1681,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
                  }
             }
 
-            Notification.show("Login Failed", "Invalid username or password", Notification.Type.ERROR_MESSAGE);
+            Notification.show(I18N.get("loginFailed1"), I18N.get("invalidUsernameOrPassword1"), Notification.Type.ERROR_MESSAGE);
         });
         layout.addComponent(loginButton);
 
@@ -1702,7 +1702,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         layout.setMargin(true);
         layout.setSpacing(true);
 
-        TextField code = new TextField("Verification Code");
+        TextField code = new TextField(I18N.get("verificationCode1"));
         code.focus();
         layout.addComponent(code);
 
@@ -1719,7 +1719,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
             }
             else
             {
-                Notification.show("Verification Failed", "Invalid code", Notification.Type.ERROR_MESSAGE);
+                Notification.show(I18N.get("verificationFailed1"), I18N.get("invalidCode1"), Notification.Type.ERROR_MESSAGE);
             }
         });
         layout.addComponent(verifyButton);

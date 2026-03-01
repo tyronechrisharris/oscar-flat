@@ -188,7 +188,7 @@ public class DatabaseStreamPanel extends VerticalLayout
         layout.setCaption(I18N.get("timeRange1"));
         
         final Button btn = new Button(FontAwesome.BAR_CHART);
-        btn.setDescription(detailChart == null ? "Show Histogram" : "Hide Histogram");
+        btn.setDescription(detailChart == null ? I18N.get("showHistogram1") : I18N.get("hideHistogram1"));
         btn.setEnabled(dsInfo.getPhenomenonTimeRange() != null);
         btn.addStyleName(UIConstants.STYLE_SMALL);
         btn.addStyleName(UIConstants.STYLE_QUIET);
@@ -206,13 +206,13 @@ public class DatabaseStreamPanel extends VerticalLayout
                     Component timeline = buildHistogram();
                     int idx = panelLayout.getComponentIndex(layout.getParent());
                     panelLayout.addComponent(timeline, idx+1);
-                    btn.setDescription("Hide Histogram");
+                    btn.setDescription(I18N.get("hideHistogram1"));
                 }
                 else
                 {
                     // remove histogram
                     panelLayout.removeComponent(detailChart.getParent());
-                    btn.setDescription("Show Histogram");
+                    btn.setDescription(I18N.get("showHistogram1"));
                     detailChart = null;
                     navigatorChart = null;
                 }
@@ -221,7 +221,7 @@ public class DatabaseStreamPanel extends VerticalLayout
         
         // refresh button
         Button refreshButton = new Button(I18N.get("refresh1"));
-        refreshButton.setDescription("Reload data from database");
+        refreshButton.setDescription(I18N.get("reloadDataFromDatabase1"));
         refreshButton.setIcon(UIConstants.REFRESH_ICON);
         refreshButton.addStyleName(UIConstants.STYLE_SMALL);
         refreshButton.addStyleName(UIConstants.STYLE_QUIET);
@@ -283,7 +283,7 @@ public class DatabaseStreamPanel extends VerticalLayout
         
         if (!foiEntries.isEmpty())
         {
-            final ComboBox selectBox = new ComboBox("FOIs");
+            final ComboBox selectBox = new ComboBox(I18N.get("fois1"));
             selectBox.setNullSelectionAllowed(false);
             selectBox.addStyleName(UIConstants.STYLE_SMALL);
             selectBox.setWidth(50, Unit.EM);

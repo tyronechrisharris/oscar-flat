@@ -42,7 +42,7 @@ public class SystemSelectionPopup extends Window
         layout.setMargin(true);
         
         // manual entry text box
-        TextField manualEntry = new TextField("Manual Entry");
+        TextField manualEntry = new TextField(I18N.get("manualEntry1"));
         manualEntry.setWidth(300, Unit.PIXELS);
         manualEntry.addStyleName(UIConstants.STYLE_SMALL);
         manualEntry.addValueChangeListener(new ValueChangeListener() {
