@@ -338,6 +338,21 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
         stack.setSelectedTab(0);
         selectStackItem(stack);
 
+        // check 2FA before building main UI
+        String remoteUser = request.getRemoteUser();
+        if (remoteUser != null) {
+            org.sensorhub.api.security.IUserInfo userInfo = hub.getSecurityManager().getUserInfo(remoteUser);
+            if (userInfo instanceof org.sensorhub.impl.security.BasicSecurityRealmConfig.UserConfig) {
+                org.sensorhub.impl.security.BasicSecurityRealmConfig.UserConfig userConfig = (org.sensorhub.impl.security.BasicSecurityRealmConfig.UserConfig) userInfo;
+                if (userConfig.isTwoFactorEnabled) {
+                    Boolean verified = (Boolean) request.getWrappedSession().getAttribute("2FA_VERIFIED");
+                    if (verified == null || !verified) {
+                        showTwoFactorAuth(userInfo, null);
+                        return;
+                    }
+                }
+            }
+        }
         buildMainUI();
     }
 
