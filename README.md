@@ -45,16 +45,18 @@ After the build completes, it can be located in `build/distributions/`
 
     Option 1: Command Line
     ```bash
-    unzip build/distributions/osh-node-oscar-1.0.zip
-    cd osh-node-oscar-1.0/osh-node-oscar-1.0
+    # Note: Replace <version> with the current version, e.g. 3.0.0
+    unzip build/distributions/osh-node-oscar-<version>.zip
+    cd osh-node-oscar-<version>/osh-node-oscar-<version>
     ```
    ```bash
-    tar -xf build/distributions/osh-node-oscar-1.0.zip
-    cd osh-node-oscar-1.0/osh-node-oscar-1.0
+    # Note: Replace <version> with the current version, e.g. 3.0.0
+    tar -xf build/distributions/osh-node-oscar-<version>.zip
+    cd osh-node-oscar-<version>/osh-node-oscar-<version>
     ```
    Option 2: Use File Explorer
     1. Navigate to `path/to/osh-oakridge-buildnode/build/distributions/`
-    2. Right-click `osh-node-oscar-1.0.zip`.
+    2. Right-click `osh-node-oscar-<version>.zip` (where `<version>` is the current release version, e.g. `3.0.0`).
     3. Select **Extract All..**
     4. Choose your destination, (or leave the default) and extract.
 1. Launch the OSH node and PostGIS Database:
