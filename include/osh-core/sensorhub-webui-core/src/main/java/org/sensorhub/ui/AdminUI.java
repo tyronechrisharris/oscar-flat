@@ -1636,7 +1636,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
 
     protected void showLogin()
     {
-        Window loginWindow = new Window("Login");
+        Window loginWindow = new Window(I18N.get("login1"));
         loginWindow.setModal(true);
         loginWindow.setClosable(false);
         loginWindow.setResizable(false);
@@ -1691,7 +1691,7 @@ public class AdminUI extends com.vaadin.ui.UI implements UIConstants
 
     protected void showTwoFactorAuth(IUserInfo user, String password)
     {
-        Window totpWindow = new Window("Two-Factor Authentication");
+        Window totpWindow = new Window(I18N.get("twofactorAuthentication1"));
         totpWindow.setModal(true);
         totpWindow.setClosable(false);
         totpWindow.setResizable(false);

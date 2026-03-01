@@ -149,7 +149,7 @@ public class BasicSecurityConfigForm extends GenericConfigForm
             return;
         }
 
-        final Window popup = new Window("Setup Two-Factor Authentication");
+        final Window popup = new Window(I18N.get("setupTwoFactorAuthentication1"));
         popup.setModal(true);
         popup.setWidth("400px");
         popup.center();
